@@ -7,6 +7,10 @@ import { ProfileEntity } from './entities/Profile.entity';
 import { UserModule } from './components/users/UserModule';
 import { ProfileModule } from './components/profile/ProfileModule';
 import { AuthModule } from './auth/AuthModule';
+import { GatoModule } from './components/gatos/GatoModule';
+import { RazaModule } from './components/raza/RazaModule';
+import { GatoEntity } from './entities/Gato.entity';
+import { RazaEntity } from './entities/Raza.entity';
 
 @Module({
   imports: [TypeOrmModule.forRoot({
@@ -19,13 +23,16 @@ import { AuthModule } from './auth/AuthModule';
       entities: [
         UserEntity,
         ProfileEntity,
+        GatoEntity,
+        RazaEntity
       ],
       synchronize: true,
   }), //Modules
   UserModule,
   ProfileModule,
   AuthModule,
-  
+  GatoModule,
+  RazaModule,
 ],
   controllers: [AppController],
   providers: [AppService],

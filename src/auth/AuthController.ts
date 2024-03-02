@@ -2,7 +2,7 @@
 
 import { Body, Controller, Post, Get, UseGuards, Req, Res, HttpStatus } from '@nestjs/common';
 import { AuthService } from './AuthService';
-import { LoginDTO } from './DTO/LoginDTO';
+import { LoginDTO } from './DTO/Login.dto';
 
 import { Response } from 'express';
 
@@ -14,6 +14,7 @@ import { Auth } from './decorators/AuthDecorator';
 import { ActiveUser } from 'src/common/decorator/ActiveUserDecorator';
 import { UserActiveInterface } from 'src/common/interface/UserActiveInterface';
 import { ApiTags } from '@nestjs/swagger';
+import { RegisterDTO } from './DTO/Register.dto';
 
 
 interface RequestWithUser extends Request {
@@ -27,21 +28,26 @@ interface RequestWithUser extends Request {
 @Controller('auth')
 export class AuthController {
   constructor(private authService: AuthService) {}
-  /*
+  
+  @Post('register')
+  register(
+    @Body()
+    registerDTO: RegisterDTO){
+    //console.log(registerDTO);
+    return this.authService.register(registerDTO);
+  }
+
   @Post('login')
   async login(@Body() loginDTO: LoginDTO) {
-      return this.authService.login(loginDTO);
-  }
-  */
-  
-  @Post('login')
-  async login(@Body() loginDTO: LoginDTO, @Res() res: Response) {
+    return this.authService.login(loginDTO);
+    /*
     try {
       await this.authService.login(loginDTO, res);
       res.status(HttpStatus.OK).send(); 
     } catch (error) {
       res.status(HttpStatus.UNAUTHORIZED).json({ message: error.message });
     }
+    */
   }
   
   @Get('profile')

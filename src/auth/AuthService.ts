@@ -4,24 +4,31 @@ import { HttpException, HttpStatus, Injectable, UnauthorizedException } from '@n
 import { JwtService } from '@nestjs/jwt';
 import { Response } from 'express';
 import  { UserService} from '../components/users/UserService'
-import { LoginDTO } from './DTO/LoginDTO';
+import { LoginDTO } from './DTO/Login.dto';
 import * as bcrypt from 'bcrypt';
+import { json } from 'stream/consumers';
+import { RegisterDTO } from './DTO/Register.dto';
 
 
 @Injectable()
 export class AuthService {
     constructor(
-        private readonly userService: UserService,
-        private jwtService:JwtService,
-        ) {}
-    async login(loginDTO: LoginDTO, res: Response): Promise<void>{
+    private readonly userService: UserService,
+    private jwtService:JwtService,
+    ) {}
+    
+    async register (registerDTO: RegisterDTO){
+        return await this.userService.createUser(registerDTO);
+    }
+
+    async login(loginDTO: LoginDTO){
         const { username, password} = loginDTO;
 
         const userFound = await this.userService.findOneUsernWithPassword(username);
-        if(!userFound) throw new HttpException('Usuario no encontrado: '+ username, HttpStatus.NOT_FOUND);
+        if(!userFound) throw new UnauthorizedException('Usuario no encontrado');
 
         const checkPassword = await bcrypt.compare(password, userFound.password);
-        if(!checkPassword) throw new HttpException('Credenciales incorrectas', HttpStatus.NOT_FOUND);
+        if(!checkPassword) throw new UnauthorizedException('Credenciales incorrectas');
 
         const payload = {id: userFound.iduser, username: userFound.username, role: userFound.role};
         const token = this.jwtService.sign(payload);
@@ -32,12 +39,13 @@ export class AuthService {
             email: userFound.email,
             fecha_registro: userFound.fecha_registro,
             role: userFound.role,
-            profile: userFound.profile
+            profile: userFound.profile,
+            token: token
         };
+        return response;
+        //res.cookie('token', token, {httpOnly: true});
 
-        res.cookie('token', token, {httpOnly: true});
-
-        res.json(response);
+        //res.json(response);
     }
 
     async renewToken(oldToken: string): Promise<string> {
